@@ -1,0 +1,612 @@
+# ESP Voice Assistant
+# 07 Oct 2024 (v 3.0.0)
+# - Based on the ESP32-S3_BOX version
+#   adapted to work without a screen but with I2s amp and mic
+#   Added some LED's for interacting
+#   Request and response sensors in HA
+#   Made to work in contineous mode with adjustable timeout
+#
+# by A.A. van Zoelen
+# Based on the work of Giants
+
+
+substitutions:
+  name: "esp-assistant"
+  friendly_name: ESP Assistant
+  
+  micro_wake_word_model: okay_nabu                # Other options are: hey_jarvis or alexa
+  timer_alarm_sound: "sounds/timer_finished.wav"  # in the esphome/ folder
+  voice_assist_idle_phase_id: "1"
+  voice_assist_listening_phase_id: "2"
+  voice_assist_thinking_phase_id: "3"
+  voice_assist_replying_phase_id: "4"
+  voice_assist_not_ready_phase_id: "10"
+  voice_assist_error_phase_id: "11"
+  voice_assist_muted_phase_id: "12"
+  voice_assist_timer_finished_phase_id: "20"
+
+  # These unique characters have been extracted from every test file of every language available on https://github.com/home-assistant/intents (14 March 2024)
+  allowed_characters: " !#%'()+,-./0123456789:;<>?@ABCDEFGHIJKLMNOPQRSTUVWYZ[]_abcdefghijklmnopqrstuvwxyz{|}°²³µ¿ÁÂÄÅÉÖÚßàáâãäåæçèéêëìíîðñòóôõöøùúûüýþāăąćčďĐđēėęěğĮįıļľŁłńňőřśšťũūůűųźŻżŽžơưșțΆΈΌΐΑΒΓΔΕΖΗΘΚΜΝΠΡΣΤΥΦάέήίαβγδεζηθικλμνξοπρςστυφχψωϊόύώАБВГДЕЖЗИКЛМНОПРСТУХЦЧШЪЭЮЯабвгдежзийклмнопрстуфхцчшщъыьэюяёђєіїјљњћאבגדהוזחטיכלםמןנסעפץצקרשת،ءآأإئابةتجحخدذرزسشصضطظعغفقكلمنهوىيٹپچڈکگںھہیےংকচতধনফবযরলশষস়ািু্చయలిెొ్ംഅആഇഈഉഎഓകഗങചജഞടഡണതദധനപഫബഭമയരറലളവശസഹാിീുൂെേൈ്ൺൻർൽൾაბგდევზთილმნოპრსტუფქყშჩცძჭხạảấầẩậắặẹẽếềểệỉịọỏốồổỗộớờởợụủứừửữựỳ—、一上不个中为主乾了些亮人任低佔何作供依侧係個側偵充光入全关冇冷几切到制前動區卧厅厨及口另右吊后吗启吸呀咗哪唔問啟嗎嘅嘛器圍在场執場外多大始安定客室家密寵对將小少左已帘常幫幾库度庫廊廚廳开式後恆感態成我戲戶户房所扇手打执把拔换掉控插摄整斯新明是景暗更最會有未本模機檯櫃欄次正氏水沒没洗活派温測源溫漏潮激濕灯為無煙照熱燈燥物狀玄现現瓦用發的盞目着睡私空窗立笛管節簾籬紅線红罐置聚聲脚腦腳臥色节著行衣解設調請謝警设调走路車车运連遊運過道邊部都量鎖锁門閂閉開關门闭除隱離電震霧面音頂題顏颜風风食餅餵가간감갔강개거게겨결경고공과관그금급기길깥꺼껐꼽나난내네놀누는능니다닫담대더데도동됐되된됨둡드든등디때떤뜨라래러렇렌려로료른를리림링마많명몇모무문물뭐바밝방배변보부불블빨뽑사산상색서설성세센션소쇼수스습시신실싱아안않알았애야어얼업없었에여연열옆오온완외왼요운움워원위으은을음의이인일임입있작잠장재전절정제져조족종주줄중줘지직진짐쪽차창천최추출충치침커컴켜켰쿠크키탁탄태탬터텔통트튼티파팬퍼폰표퓨플핑한함해했행혀현화활후휴힘，？"
+  led_ring_pin: "GPIO21"
+  led_ring_power_mosfet_pin: "GPIO45"
+  led_ring_led_amount: "16"
+  
+  i2s_output_lrclk_pin: "GPIO6"
+  i2s_output_bclk_pin: "GPIO7"
+  i2s_output_dout_pin: "GPIO8"
+  speaker_sample_rate: '44100'
+  speaker_bits_per_sample: "16"
+
+  i2s_input_lrclk_pin: "GPIO18"
+  i2s_input_bclk_pin: "GPIO2"
+  i2s_input_din_pin: "GPIO4"
+  mic_sample_rate: '16000'
+  mic_bits_per_sample: "32"
+
+esphome:
+  name: ${name}
+  friendly_name: ${friendly_name}
+  min_version: 2025.2.2
+  compile_process_limit: 1 # Helps when compiling on light weight systems  
+  platformio_options:
+    board_build.flash_mode: dio
+
+external_components:
+  - source: custom_components
+    components: 
+      - voice_assistant
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    version: latest
+    sdkconfig_options:
+      CONFIG_ESP32S3_DEFAULT_CPU_FREQ_240: "y"
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_ESP32S3_INSTRUCTION_CACHE_32KB: "y"
+
+      CONFIG_BT_ALLOCATION_FROM_SPIRAM_FIRST: "y"
+      CONFIG_BT_BLE_DYNAMIC_ENV_MEMORY: "y"
+
+      CONFIG_MBEDTLS_EXTERNAL_MEM_ALLOC: "y"
+      CONFIG_MBEDTLS_SSL_PROTO_TLS1_3: "y"  # TLS1.3 support isn't enabled by default in IDF 5.1.5
+psram:
+  mode: octal
+  speed: 80MHz
+
+api:
+  encryption:
+    key: !secret api_key
+
+ota:
+  - platform: esphome
+    id: ota_esphome
+    password: !secret ota_password
+
+logger:
+  hardware_uart: USB_SERIAL_JTAG
+
+wifi:
+  ssid: "IoT"
+  password: "Eis Feuer Schoki"
+  #output_power: 8.5dB
+
+  # If the device connects, or disconnects, to the Wifi: Run the script to refresh the LED status
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: ${name}-ap
+    password: !secret fallbackap_password
+ 
+
+button: # Diagnotiscs
+  - platform: restart
+    id: "restart_device"
+    name: "Restart"
+    entity_category: "diagnostic"
+
+
+light:
+  - platform: esp32_rmt_led_strip
+    rgb_order: RGB
+    pin: ${led_ring_pin} #GPIO48 On board light #GPIO17
+    num_leds: ${led_ring_led_amount}
+    #rmt_channel: 0
+    chipset: WS2812
+    name: "Status LED"
+    id: led
+    disabled_by_default: True
+    entity_category: config
+    icon: mdi:led-on
+    default_transition_length: 0s
+    effects:
+      - pulse:
+          name: "Slow Pulse"
+          transition_length: 250ms
+          update_interval: 250ms
+          min_brightness: 60%
+          max_brightness: 80%
+      - pulse:
+          name: "Fast Pulse"
+          transition_length: 100ms
+          update_interval: 100ms
+          min_brightness: 60%
+          max_brightness: 80%
+      - addressable_scan:
+          name: "Scanning"
+          move_interval: 70ms
+          scan_width: 1
+      - pulse:
+          name: "Waiting for wake word"
+          min_brightness:  15%
+          max_brightness: 35%
+          transition_length: 3s      # defaults to 1s
+          update_interval: 3s
+
+
+
+# This is our two i2s buses with the correct pins. 
+# You can refer to the wiring diagram of our voice assistant for more details 
+i2s_audio:
+  - id: i2s_in
+    i2s_lrclk_pin:
+      number: ${i2s_input_lrclk_pin}
+    i2s_bclk_pin:
+      number: ${i2s_input_bclk_pin}
+  - id: i2s_out
+    i2s_lrclk_pin:
+      number: ${i2s_output_lrclk_pin}
+    i2s_bclk_pin:
+      number: ${i2s_output_bclk_pin}
+
+# This is the declaration of our microphone. 
+# It includes the data pin (You can refer to the wiring diagram of our voice assistant for more details)
+# It references the correct i2s bus declared above.
+microphone:
+  - platform: i2s_audio
+    id: echo_microphone
+    adc_type: external
+    i2s_audio_id: i2s_in
+    i2s_din_pin: ${i2s_input_din_pin}
+    sample_rate: ${mic_sample_rate}
+    bits_per_sample: 32bit
+    pdm: false
+    channel: left
+
+
+# This is the declaration of our speaker. 
+# It includes the data pin (You can refer to the wiring diagram of our voice assistant for more details)
+# It references the correct i2s bus declared above.
+speaker:
+  - platform: i2s_audio
+    id: echo_speaker
+    dac_type: external
+    i2s_audio_id: i2s_out
+    i2s_dout_pin: ${i2s_output_dout_pin}
+    channel: stereo
+    timeout: never
+    buffer_duration: 100ms
+    sample_rate: ${speaker_sample_rate}
+  - platform: mixer
+    id: mixer_speaker_id
+    num_channels: 2
+    output_speaker: echo_speaker
+    source_speakers:
+      - id: announcement_spk_mixer_input
+      - id: media_spk_mixer_input
+  - platform: resampler
+    id: media_spk_resampling_input
+    output_speaker: media_spk_mixer_input
+    sample_rate: ${speaker_sample_rate}
+    bits_per_sample: ${speaker_bits_per_sample}
+  - platform: resampler
+    id: announcement_spk_resampling_input
+    output_speaker: announcement_spk_mixer_input
+    sample_rate: ${speaker_sample_rate}
+    bits_per_sample: ${speaker_bits_per_sample}
+
+media_player:
+  - platform: speaker
+    name: "Echo Media Player"
+    id: echo_media_player
+    internal: False
+    volume_increment: 0.05
+    volume_min: 0.2
+    volume_max: 1.0
+    media_pipeline:
+      speaker: media_spk_resampling_input
+      format: FLAC     # FLAC is the least processor intensive codec
+      num_channels: 2
+      sample_rate: ${speaker_sample_rate}
+    announcement_pipeline:
+      speaker: announcement_spk_resampling_input
+      format: FLAC     # FLAC is the least processor intensive codec
+      num_channels: 1  # Stereo audio is unnecessary for announcements
+      sample_rate: ${speaker_sample_rate}
+    codec_support_enabled: true
+    files:
+      - id: timer_finished_wave_file
+        file: https://github.com/esphome/wake-word-voice-assistants/raw/main/sounds/timer_finished.wav
+    on_announcement:
+      - if:
+          condition:
+            - microphone.is_capturing:
+          then:
+            - if:
+                condition:
+                  lambda: return id(wake_word_engine_location).state == "On device";
+                then:
+                  - micro_wake_word.stop:
+                else:
+                  - voice_assistant.stop:
+            - script.execute: reset_led
+      - light.turn_on:
+          id: led
+          blue: 100%
+          red: 0%
+          green: 0%
+          brightness: 100%
+          effect: none
+      - mixer_speaker.apply_ducking:
+          id: media_spk_mixer_input
+          decibel_reduction: 20
+          duration: 0.0s
+    on_idle:
+      - script.execute: start_wake_word
+    on_state:
+      if:
+        condition:
+          and:
+            - switch.is_off: timer_ringing
+            - not:
+                voice_assistant.is_running:
+            - not:
+                media_player.is_announcing:
+        then:
+          - mixer_speaker.apply_ducking:
+              id: media_spk_mixer_input
+              decibel_reduction: 0
+              duration: 1.0s
+    files:
+      - id: center_button_press_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/center_button_press.flac
+      - id: center_button_double_press_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/center_button_double_press.flac
+      - id: center_button_triple_press_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/center_button_triple_press.flac
+      - id: center_button_long_press_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/center_button_long_press.flac
+      - id: factory_reset_initiated_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/factory_reset_initiated.mp3
+      - id: factory_reset_cancelled_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/factory_reset_cancelled.mp3
+      - id: factory_reset_confirmed_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/factory_reset_confirmed.mp3
+      - id: jack_connected_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/jack_connected.flac
+      - id: jack_disconnected_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/jack_disconnected.flac
+      - id: mute_switch_on_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/mute_switch_on.flac
+      - id: mute_switch_off_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/mute_switch_off.flac
+      - id: timer_finished_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/timer_finished.flac
+      - id: wake_word_triggered_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/wake_word_triggered.flac
+      - id: easter_egg_tick_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/easter_egg_tick.mp3
+      - id: easter_egg_tada_sound
+        file: https://github.com/esphome/home-assistant-voice-pe/raw/dev/sounds/easter_egg_tada.mp3
+
+
+
+voice_assistant:
+  id: va
+  microphone: echo_microphone
+  media_player: echo_media_player
+  micro_wake_word: mww
+  noise_suppression_level: 4  # Between 0 and 4 inclusive. Defaults to 0 (disabled).
+  auto_gain: 4dBFS           # Between 0dBFS and 31dBFS inclusive. Defaults to 0 (disabled).
+  volume_multiplier: 1.0      # Must be larger than 0. Defaults to 1 (disabled).
+  on_listening:
+    - light.turn_on:
+        id: led
+        blue: 100%
+        red: 0%
+        green: 0%
+        effect: "Slow Pulse"
+  on_stt_vad_end:
+    - light.turn_on:
+        id: led
+        blue: 100%
+        red: 0%
+        green: 0%
+        effect: "Fast Pulse"
+  on_tts_start:
+    - light.turn_on:
+        id: led
+        blue: 100%
+        red: 0%
+        green: 0%
+        brightness: 100%
+        effect: none
+  on_end:
+    - delay: 100ms
+    - wait_until:
+        not:
+          voice_assistant.is_running:
+    # Stop ducking audio.
+    - mixer_speaker.apply_ducking:
+        id: media_spk_mixer_input
+        decibel_reduction: 0
+        duration: 1.0s
+    - script.execute: start_wake_word
+  on_error:
+    - light.turn_on:
+        id: led
+        red: 100%
+        green: 0%
+        blue: 0%
+        brightness: 100%
+        effect: none
+    - delay: 2s
+    - script.execute: reset_led
+  on_client_connected:
+    - delay: 2s  # Give the api server time to settle
+    - script.execute: start_wake_word
+  on_client_disconnected:
+    - voice_assistant.stop:
+    - micro_wake_word.stop:
+  on_timer_finished:
+    - voice_assistant.stop:
+    - micro_wake_word.stop:
+    - wait_until:
+        not:
+          microphone.is_capturing:
+    - switch.turn_on: timer_ringing
+    - light.turn_on:
+        id: led
+        red: 0%
+        green: 100%
+        blue: 0%
+        brightness: 100%
+        effect: "Fast Pulse"
+    - wait_until:
+        - switch.is_off: timer_ringing
+    - light.turn_off: led
+    - switch.turn_off: timer_ringing
+
+
+script:
+  - id: reset_led
+    then:
+      - if:
+          condition:
+            - lambda: return id(wake_word_engine_location).state == "On device";
+            - switch.is_on: use_listen_light
+          then:
+            - light.turn_on:
+                id: led
+                red: 100%
+                green: 89%
+                blue: 71%
+                brightness: 60%
+                effect: none
+          else:
+            - if:
+                condition:
+                  - lambda: return id(wake_word_engine_location).state != "On device";
+                  - switch.is_on: use_listen_light
+                then:
+                  - light.turn_on:
+                      id: led
+                      red: 0%
+                      green: 100%
+                      blue: 100%
+                      brightness: 60%
+                      effect: none
+                else:
+                  - light.turn_off: led
+  - id: start_wake_word
+    then:
+      - wait_until:
+          and:
+            - media_player.is_idle:
+      - if:
+          condition:
+            lambda: return id(wake_word_engine_location).state == "On device";
+          then:
+            - voice_assistant.stop:
+            - micro_wake_word.stop:
+            - delay: 1s
+            - script.execute: reset_led
+            - script.wait: reset_led
+            - micro_wake_word.start:
+          else:
+            - if:
+                condition: voice_assistant.is_running
+                then:
+                  - voice_assistant.stop:
+                  - script.execute: reset_led
+            - voice_assistant.start_continuous:
+  - id: ring_timer
+    then:
+      - script.execute: enable_repeat_one
+      - script.execute:
+          id: play_sound
+          priority: true
+          sound_file: !lambda return id(timer_finished_sound);
+
+  # Script executed when the timer is ringing, to repeat the timer finished sound.
+  - id: enable_repeat_one
+    then:
+      # Turn on the repeat mode and pause for 500 ms between playlist items/repeats
+      - lambda: |-
+            id(external_media_player)
+              ->make_call()
+              .set_command(media_player::MediaPlayerCommand::MEDIA_PLAYER_COMMAND_REPEAT_ONE)
+              .set_announcement(true)
+              .perform();
+            id(external_media_player)->set_playlist_delay_ms(speaker::AudioPipelineType::ANNOUNCEMENT, 500);
+
+  # Script execute when the timer is done ringing, to disable repeat mode.
+  - id: disable_repeat
+    then:
+      # Turn off the repeat mode and pause for 0 ms between playlist items/repeats
+      - lambda: |-
+            id(external_media_player)
+              ->make_call()
+              .set_command(media_player::MediaPlayerCommand::MEDIA_PLAYER_COMMAND_REPEAT_OFF)
+              .set_announcement(true)
+              .perform();
+            id(external_media_player)->set_playlist_delay_ms(speaker::AudioPipelineType::ANNOUNCEMENT, 0);
+
+  # Script executed when we want to play sounds on the device.
+  - id: play_sound
+    parameters:
+      priority: bool
+      sound_file: "audio::AudioFile*"
+    then:
+      - lambda: |-
+          if (priority) {
+            id(external_media_player)
+              ->make_call()
+              .set_command(media_player::MediaPlayerCommand::MEDIA_PLAYER_COMMAND_STOP)
+              .set_announcement(true)
+              .perform();
+          }
+          if ( (id(external_media_player).state != media_player::MediaPlayerState::MEDIA_PLAYER_STATE_ANNOUNCING ) || priority) {
+            id(external_media_player)
+              ->play_file(sound_file, true, false);
+          }
+
+  # Script used to fetch the first active timer (Stored in global first_active_timer)
+  - id: fetch_first_active_timer
+    then:
+      - lambda: |
+          const auto timers = id(va).get_timers();
+          auto output_timer = timers.begin()->second;
+          for (auto &iterable_timer : timers) {
+            if (iterable_timer.second.is_active && iterable_timer.second.seconds_left <= output_timer.seconds_left) {
+              output_timer = iterable_timer.second;
+            }
+          }
+          id(first_active_timer) = output_timer;
+
+  # Script used to check if a timer is active (Stored in global is_timer_active)
+  - id: check_if_timers_active
+    then:
+      - lambda: |
+          const auto timers = id(va).get_timers();
+          bool output = false;
+          if (timers.size() > 0) {
+            for (auto &iterable_timer : timers) {
+              if(iterable_timer.second.is_active) {
+                output = true;
+              }
+            }
+          }
+          id(is_timer_active) = output;
+
+  # Script used activate the stop word if the TTS step is long.
+  # Why is this wrapped on a script?
+  #   Becasue we want to stop the sequence if the TTS step is faster than that.
+  #   This allows us to prevent having the deactivation of the stop word before its own activation.
+  - id: activate_stop_word_if_tts_step_is_long
+    then:
+      - delay: 1s
+      # Enable stop wake word
+      - lambda: id(stop).enable();
+switch:
+  - platform: template
+    name: Use listen light
+    id: use_listen_light
+    optimistic: true
+    restore_mode: RESTORE_DEFAULT_ON
+    entity_category: config
+    on_turn_on:
+      - script.execute: reset_led
+    on_turn_off:
+      - script.execute: reset_led
+
+  - platform: template
+    name: "Ring Timer"
+    id: timer_ringing
+    optimistic: true
+    restore_mode: ALWAYS_OFF
+    on_turn_off:
+        # Stop playing the alarm
+        - media_player.stop:
+            announcement: true
+        - mixer_speaker.apply_ducking:  # Stop ducking the media stream over 2 seconds
+            id: media_spk_mixer_input
+            decibel_reduction: 0
+            duration: 2.0s
+    on_turn_on:
+        # Duck media audio by 20 decibels instantly
+        - mixer_speaker.apply_ducking:
+            id: media_spk_mixer_input
+            decibel_reduction: 20
+            duration: 0.0s
+        - while:
+            condition:
+                switch.is_on: timer_ringing
+            then:
+                # Play the alarm sound as an announcement
+                - media_player.speaker.play_on_device_media_file:
+                    media_file: timer_finished_wave_file
+                    announcement: true
+                # Wait until the alarm sound starts playing
+                - wait_until:
+                    media_player.is_announcing:
+                # Wait until the alarm sound stops playing
+                - wait_until:
+                    not:
+                      media_player.is_announcing:
+
+
+select:
+  - platform: template
+    entity_category: config
+    name: Wake word engine location
+    id: wake_word_engine_location
+    optimistic: true
+    restore_value: true
+    options:
+      - In Home Assistant
+      - On device
+    initial_option: On device
+    on_value:
+      - if:
+          condition:
+            lambda: return x == "In Home Assistant";
+          then:
+            - micro_wake_word.stop
+            - delay: 500ms
+            - lambda: id(va).set_use_wake_word(true);
+            - voice_assistant.start_continuous:
+      - if:
+          condition:
+            lambda: return x == "On device";
+          then:
+            - lambda: id(va).set_use_wake_word(false);
+            - voice_assistant.stop
+            - delay: 500ms
+            - micro_wake_word.start
+
+micro_wake_word:
+  id: mww
+  on_wake_word_detected:
+    - voice_assistant.start:
+        wake_word: !lambda return wake_word;
+  vad:
+  models:
+    - model: ${micro_wake_word_model}
+    - model: https://github.com/kahrendt/microWakeWord/releases/download/stop/stop.json
+      id: stop
+      internal: true
