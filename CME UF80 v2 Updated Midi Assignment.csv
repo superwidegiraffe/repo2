@@ -1,0 +1,151 @@
+0,Time,Direction,Message,Channel,Channel Hex,CC Dez,Value,CC Hex,Label,Type,Layer
+
+1,13:32:55.758,out,Controller 114: 127,1,B0,114,127,72,record,Button,All
+
+2,13:32:56.105,out,Controller 118: 127,1,B0,118,127,76,stop,Button,All
+
+3,13:32:56.500,out,Controller 119: 127,1,B0,119,127,77,play,Button,All
+
+4,13:32:59.425,out,Controller 115: 127,1,B0,115,127,73,fast-back,Button,All
+
+5,13:33:00.425,out,Controller 116: 127,1,B0,116,127,74,back,Button,All
+
+6,13:33:01.474,out,Controller 117: 127,1,B0,117,127,75,ff,Button,All
+
+7,13:39:40.033,out,Controller 74: Sound Brightness,1,B0,74,4,4A,Cutoff,Knob,0
+
+8,13:39:42.061,out,Controller 71: Sound Timbre: 71,1,B0,71,71,47,Resonance,Knob,0
+
+9,13:39:43.654,out,Controller 73: Sound Attack Time,1,B0,73,82,49,Attack,Knob,0
+
+10,13:39:45.951,out,Controller 75: Sound Control 6,1,B0,75,65,4B,Decay,Knob,0
+
+11,13:39:47.186,out,Controller 72: Sound Release Time,1,B0,72,37,48,Release,Knob,0
+
+12,13:39:49.150,out,Controller 10: Pan position (coarse),1,B0,10,71,0A,Pan,Knob,0
+
+13,13:39:50.611,out,Controller 91: Reverb Level,1,B0,91,90,5B,Reverb,Knob,0
+
+14,13:39:51.852,out,Controller 93: Chorus Level,1,B0,93,72,5D,Chorus,Knob,0
+
+15,13:44:41.078,out,Controller 7: Volume (coarse),1,B0,7,6,07,Volume,Fader,0
+
+16,13:44:43.736,out,Controller 11: Expression (coarse),1,B0,11,12,0B,Expression,Fader,0
+
+17,13:44:45.507,out,Controller 76: Sound Control 7,1,B0,76,2,4C,Vib Rate,Fader,0
+
+18,13:44:47.405,out,Controller 77: Sound Control 8,1,B0,77,8,4D,Vib Depth,Fader,0
+
+19,13:44:49.536,out,Controller 78: Sound Control 9,1,B0,78,2,4E,Vib Delay,Fader,0
+
+22,13:44:51.933,out,Controller 12: Effect Controller 1,1,B0,12,2,0C,EQ Low,Fader,0,Changed
+
+28,13:45:52.833,out,Controller 13: Effect Controller 2,1,B0,13,3,0D,EQ High,Fader,0,Changed
+
+29,13:45:58.582,out,Controller 14: Unspecified,1,B0,14,2,0E,Bank MSB,Fader,0,Changed
+
+30,13:46:00.437,out,Controller 15: Unspecified,1,B0,15,2,0F,Bank LSB,Fader,0,Changed
+
+31,14:08:14.246,out,Controller 16: General Purpose (MSB),1,B0,16,3,10,Cutoff,Knob,A,Changed
+
+32,14:08:24.684,out,Controller 17: General Purpose (MSB),1,B0,17,75,11,Resonance,Knob,A,Changed
+
+33,14:08:27.050,out,Controller 18: General Purpose (MSB),1,B0,18,88,12,Attack,Knob,A,Changed
+
+34,14:08:28.571,out,Controller 19: General Purpose (MSB),1,B0,19,71,13,Decay,Knob,A,Changed
+
+35,14:08:29.765,out,Controller 20: Undefined (MSB),1,B0,20,43,14,Release,Knob,A,Changed
+
+36,14:08:30.810,out,Controller 21: Undefined (MSB),1,B0,21,75,15,Pan,Knob,A,Changed
+
+37,14:08:31.861,out,Controller 22: Undefined (MSB),1,B0,22,95,16,Reverb,Knob,A,Changed
+
+38,14:08:32.685,out,Controller 23: Undefined (MSB),1,B0,23,77,17,Chorus,Knob,A,Changed
+
+39,13:44:41.078,out,Controller 7: Volume (coarse),1,B0,7,6,07,Volume,Fader,A,Changed
+
+40,14:40:29.412,out,Controller 24: Undefined (MSB),1,B0,24,2,18,Expression,Fader,A,Changed
+
+41,14:40:38.372,out,Controller 25: Undefined (MSB),1,B0,25,3,19,Vib Rate,Fader,A,Changed
+
+42,14:40:41.607,out,Controller 26: Undefined (MSB),1,B0,26,2,1A,Vib Depth,Fader,A,Changed
+
+43,14:40:43.312,out,Controller 27: Undefined (MSB),1,B0,27,3,1B,Vib Delay,Fader,A,Changed
+
+44,14:40:49.041,out,Controller 28: Undefined (MSB),1,B0,28,3,1C,EQ Low,Fader,A,Changed
+
+45,14:40:50.134,out,Controller 29: Undefined (MSB),1,B0,29,3,1D,EQ High,Fader,A,Changed
+
+46,14:40:51.375,out,Controller 30: Undefined (MSB),1,B0,30,3,1E,Bank MSB,Fader,A,Changed
+
+47,14:40:51.937,out,Controller 31: Undefined (MSB),1,B0,31,6,1F,Bank LSB,Fader,A,Changed
+
+48,14:41:18.680,out,Controller 70: Sound Variation,1,B0,70,55,46,Cutoff,Knob,B,Changed
+
+49,14:41:19.626,out,Controller 79: Controller Sound Control,1,B0,79,123,4F,Resonance,Knob,B,Changed
+
+50,14:41:20.422,out,Controller 102: Undefined,1,B0,102,94,66,Attack,Knob,B,Changed
+
+51,14:41:21.014,out,Controller 103: Undefined,1,B0,103,98,67,Decay,Knob,B,Changed
+
+52,14:41:22.021,out,Controller 104: Undefined,1,B0,104,66,68,Release,Knob,B,Changed
+
+53,14:41:22.820,out,Controller 105: Undefined,1,B0,105,111,69,Pan,Knob,B,Changed
+
+54,14:41:23.530,out,Controller 106: Undefined,1,B0,106,100,6A,Reverb,Knob,B,Changed
+
+55,14:41:24.915,out,Controller 107: Undefined,1,B0,107,90,6B,Chorus,Knob,B,Changed
+
+56,13:44:41.078,out,Controller 7: Volume,1,B0,7,6,07,Volume,Fader,B,Changed
+
+57,14:41:53.757,out,Controller 108: Undefined,1,B0,108,12,6C,Expression,Fader,B,Changed
+
+58,14:41:54.320,out,Controller 109: Undefined,1,B0,109,10,6D,Vib Rate,Fader,B,Changed
+
+59,14:41:54.970,out,Controller 110: Undefined,1,B0,110,7,6E,Vib Depth,Fader,B,Changed
+
+60,14:41:55.624,out,Controller 111: Undefined,1,B0,111,5,6F,Vib Delay,Fader,B,Changed
+
+61,14:41:56.306,out,Controller 112: Undefined,1,B0,112,11,70,EQ Low,Fader,B,Changed
+
+62,14:41:57.015,out,Controller 113: Undefined,1,B0,113,12,71,EQ High,Fader,B,Changed
+
+63,14:41:58.081,out,Controller 105: Undefined,2,B1,105,14,69,Bank MSB,Fader,B,Changed
+
+64,14:41:58.587,out,Controller 106: Undefined,2,B1,106,12,6A,Bank LSB,Fader,B,Changed
+
+65,14:54:40.575,out,Controller 80: General Purpose Button 1,1,B0,80,127,50,F1,Button,0,Changed
+
+67,14:54:40.575,out,Controller 81: General Purpose Button 2,1,B0,81,127,51,F2,Button,0,Changed
+
+67,14:54:40.575,out,Controller 82: General Purpose Button 3,1,B0,82,127,52,F3,Button,0,Changed
+
+67,14:54:40.575,out,Controller 83: General Purpose Button 4,1,B0,83,127,53,F4,Button,0,Changed
+
+67,14:54:40.575,out,Controller 84: Portamento,1,B0,84,127,54,F5,Button,0,Changed
+
+67,14:54:40.575,out,Controller 85: Undefined,1,B0,85,127,55,F6,Button,0,Changed
+
+83,15:01:08.249,out,Controller 86: Undefined,1,B0,86,127,56,F1,Button,A,Changed
+
+84,15:01:08.728,out,Controller 87: Undefined,1,B0,87,127,57,F2,Button,A,Changed
+
+85,15:01:09.248,out,Controller 89: Undefined,1,B0,89,127,59,F3,Button,A,Changed
+
+86,15:01:09.820,out,Controller 90: Undefined,1,B0,90,127,5A,F4,Button,A,Changed
+
+87,15:01:10.283,out,Controller 103: Undefined,2,B1,103,127,67,F5,Button,A,Changed
+
+88,15:01:10.799,out,Controller 104: Undefined,2,B1,104,127,68,F6,Button,A,Changed
+
+89,15:01:17.422,out,Controller 91: Effect 1 Depth (Reverb),1,B0,91,127,5B,F1,Button,B,Changed
+
+90,15:01:17.876,out,Controller 92: Effect 2 Depth (Tremolo),1,B0,92,127,5C,F2,Button,B,Changed
+
+91,15:01:18.284,out,Controller 93: Effect 3 Depth (Chorus),1,B0,93,127,5D,F3,Button,B,Changed
+
+92,15:01:18.762,out,Controller 94: Effect 4 Depth (Detune),1,B0,94,127,5E,F4,Button,B,Changed
+
+93,15:01:19.196,out,Controller 95: Effect 5 Depth (Phaser),1,B0,95,127,5F,F5,Button,B,Changed
+
+94,15:01:19.665,out,Controller 102: Undefined,2,B1,102,127,66,F6,Button,B,Changed
